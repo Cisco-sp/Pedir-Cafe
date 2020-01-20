@@ -10,7 +10,7 @@ const wxAPIs = {
 
 };
 //declara o token de acesso ao bot
-const accesstoken = 'Yzg5ZDRkNjQtZDc1OC00N2MwLWEyZDItYzI2N2NlZmE2Y2ZiZjlhNjY3MTAtZDJi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f';
+const accesstoken = '';
 //criação da funcão principal
 function Main() {
     //declara o pedido dentro do contexto de contador
@@ -62,7 +62,7 @@ function Main() {
 
                     //chama a função de enviar a mensagem, e cria a interface gráfica com a parte de confirmação do envio
 
-                    sendWebexTeams(wxAPIs.message, 'Post', "Y2lzY29zcGFyazovL3VzL1JPT00vZTA1MTE2NjAtM2JhMy0xMWVhLWIyY2UtYmIyY2Q4NzlmOGJm", mensagem, pedido);
+                    sendWebexTeams(wxAPIs.message, 'Post', " ", mensagem, pedido);
                     //zera o pedido e guarda na variavel "pedido"
                     pedido = zerarVar(pedido);
 
