@@ -1,116 +1,122 @@
 //declarção de constanates
-  //chama a xapi
+//chama a xapi
 const xapi = require('xapi');
 //declara os caminhos basicos de requisição de API
 const wxAPIs = {
-  //caminho de espaços
+    //caminho de espaços
     'space': 'https://api.ciscospark.com/v1/rooms',
     //caminho de mensagens
     'message': 'https://api.ciscospark.com/v1/messages'
 
 };
 //declara o token de acesso ao bot
-const accesstoken = 'token de acesso ao seu bot';
+const accesstoken = 'Yzg5ZDRkNjQtZDc1OC00N2MwLWEyZDItYzI2N2NlZmE2Y2ZiZjlhNjY3MTAtZDJi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f';
 //criação da funcão principal
 function Main() {
-//declara o pedido dentro do contexto de contador
-  let pedido = [{
-                    "tipo": "agua",
-                    "quantidade": 0
-                },
-                {
-                    "tipo": "espresso",
-                    "quantidade": 0
-                },
-                {
-                    "tipo": "capu",
-                    "quantidade": 0
-                },
-                {
-                    "tipo": "chá",
-                    "quantidade": 0
-                }
-            ];
+    //declara o pedido dentro do contexto de contador
+    let pedido = [{
+        "tipo": "agua",
+        "quantidade": 0
+    },
+    {
+        "tipo": "espresso",
+        "quantidade": 0
+    },
+    {
+        "tipo": "capu",
+        "quantidade": 0
+    },
+    {
+        "tipo": "chá",
+        "quantidade": 0
+    }
+    ];
     //função de checagem de quando algum evento de widget acontece dentro no endpoint
-  xapi.event.on('UserInterface Extensions Widget Action', (event) => {
-            //switch/case para o evento , checando o nome do botão clicado, e enviando as variaveis corretas para a fução de atualizar pedido
-            switch (event.WidgetId) {
+    xapi.event.on('UserInterface Extensions Widget Action', (event) => {
+        //switch/case para o evento , checando o nome do botão clicado, e enviando as variaveis corretas para a fução de atualizar pedido
+        switch (event.WidgetId) {
             case "water":
-            pedido[0] = atualizarPedido(event, pedido[0]);
-              break;
+                pedido[0] = atualizarPedido(event, pedido[0]);
+                break;
             case "express":
-              pedido[1] = atualizarPedido(event, pedido[1]);
-              break;
+                pedido[1] = atualizarPedido(event, pedido[1]);
+                break;
             case "capu":
-              pedido[2] = atualizarPedido(event, pedido[2]);
-              break;
+                pedido[2] = atualizarPedido(event, pedido[2]);
+                break;
             case "tea":
-              pedido[3] = atualizarPedido(event, pedido[3]);
-              break;
+                pedido[3] = atualizarPedido(event, pedido[3]);
+                break;
             //caso o botão clicado for pedir, ele cria a mensagem de pedido e envia ao webex teams.
             case "pedir":
-              if (event.Type == 'clicked') {
-                //criação da mensagem
-              let mensagem =
-              pedido[0].quantidade + ' ' + pedido[0].tipo + ", " +
-              pedido[1].quantidade + ' ' + pedido[1].tipo + ', ' +
-              pedido[2].quantidade + ' ' + pedido[2].tipo + ' e ' +
-              pedido[3].quantidade + ' ' + pedido[3].tipo + '.';
-                //chama a função de enviar a mensagem, e cria a interface gráfica com a parte de confirmação do envio 
-              sendWebexTeams(wxAPIs.message, 'Post', "Y2lzY29zcGFyazovL3VzL1JPT00vNDg5Yzk0OTAtMDU4Mi0xMWVhLWIzZjgtMjE2ODFjMjM5NDMx", mensagem, pedido);
-              //zera o pedido e guarda na variavel "pedido"
-              pedido=zerarVar(pedido);
-             }
-            break;
-          }
-        });
+                if (event.Type == 'clicked') {
+                    //criação da mensagem
+                    let mensagem =
+                        'Água(s): ' + pedido[0].quantidade + '\n' +
+                        'Espresso(s): ' + pedido[1].quantidade + '\n' +
+                        'Cappuccino(s): ' + pedido[2].quantidade + '\n' +
+                        'Chá(s): ' + pedido[3].quantidade + ' ';
+
+                    //let letra = mensagem.split(" ");
+                    //mensagem = letra.join("\n");
+
+                    //chama a função de enviar a mensagem, e cria a interface gráfica com a parte de confirmação do envio
+
+                    sendWebexTeams(wxAPIs.message, 'Post', "Y2lzY29zcGFyazovL3VzL1JPT00vZTA1MTE2NjAtM2JhMy0xMWVhLWIyY2UtYmIyY2Q4NzlmOGJm", mensagem, pedido);
+                    //zera o pedido e guarda na variavel "pedido"
+                    pedido = zerarVar(pedido);
+
+                }
+                break;
+        }
+    });
     //função de checagem de quando algum evento de painel acontece dentro no endpoint
-  xapi.event.on('UserInterface Extensions Panel Clicked', (event) => {
-          if (event.PanelId == 'panel_3' && event.Type == 'closed')
-          //zera o pedido e guarda na variavel
-          pedido=zerarVar(pedido);
-        });
+    xapi.event.on('UserInterface Extensions Panel Clicked', (event) => {
+        if (event.PanelId == 'panel_3' && event.Type == 'closed')
+            //zera o pedido e guarda na variavel
+            pedido = zerarVar(pedido);
+    });
 }
 //criação da função de enviar mensagem ao webex teams
 function sendWebexTeams(url, method, email, message, pedido) {
-  //é importante cercar o comando por um try catch para não crashar os macros
+    //é importante cercar o comando por um try catch para não crashar os macros
     try {
-      //comando de requisição http
+        //comando de requisição http
         xapi.command('HttpClient ' + method, {
-                    Header: ["Content-Type: application/json", "Authorization: Bearer " + accesstoken],
-                    Url: url,
-                    AllowInsecureHTTPS: 'True'
-                },
-                JSON.stringify({
-                    "roomId": email,
-                    "text": "O pedido é de " +message
-                })
-            )
+            Header: ["Content-Type: application/json", "Authorization: Bearer " + accesstoken],
+            Url: url,
+            AllowInsecureHTTPS: 'True'
+        },
+            JSON.stringify({
+                "roomId": email,
+                "text": "Segue um pedido fresquinho :D \n" + message
+            })
+        )
             .then((result) => {
                 console.log(message);
-            //cria a interface gráfica de confirmação de envio
-            console.log(result);
-             xapi.command('UserInterface Message Prompt Display', {
-                Title: 'Pedido enviado!',
-                Text: "O seu pedido é de " + message
-              });
+                //cria a interface gráfica de confirmação de envio
+                console.log(result);
+                xapi.command('UserInterface Message Prompt Display', {
+                    Title: 'Pedido enviado!',
+                    Text: "O seu pedido é de " + message
+                });
                 //zera e retorna o pedido zerado
                 return zerarVar(pedido);
             })
             .catch((err) => {
-              //exibe o erro no console caso tenha dado algum
+                //exibe o erro no console caso tenha dado algum
                 console.log("failed: " + JSON.stringify(err));
-              //exie o mesmo erro na parte visual
+                //exie o mesmo erro na parte visual
                 xapi.command('UserInterface Message Prompt Display', {
-                Title: 'Erro:',
-                Text: err
-              });
+                    Title: 'Erro:',
+                    Text: err
+                });
             });
     } catch (exception) {
         console.log("Erro ao enviar a mensagem");
     }
 }
-//criação d funcção de atualizar pedido , tanto na parte visual quanto na parte logica
+//criação de função de atualizar pedido , tanto na parte visual quanto na parte logica
 function atualizarPedido(event, pedido) {
     if (event.WidgetId == event.WidgetId && event.Value == 'increment' && event.Type == 'clicked') {
         pedido.quantidade++;
@@ -120,21 +126,30 @@ function atualizarPedido(event, pedido) {
         });
         //console.log(cont);
     } else if (event.WidgetId == event.WidgetId && event.Value == 'decrement' && event.Type == 'clicked') {
-        pedido.quantidade--;
+
+        //Condicional para o pedido nunca ser menor que zero
+        if (pedido.quantidade > 0) {
+            pedido.quantidade--;
+
+        } else {
+            pedido.quantidade = 0;
+        }
+
         xapi.command("UserInterface Extensions Widget SetValue", {
             WidgetId: event.WidgetId,
             value: pedido.quantidade
         });
+
     }
-    //console.log(cont);
+    //Retorna o pedido
     return pedido;
 }
 //criação d funcção de zerar pedido , tanto na parte visual quanto na parte logica
 function zerarVar(pedido) {
     let pedidoZerar = ['water', 'express', 'capu', 'tea'];
-    
+
     for (let i = 0; i < pedidoZerar.length; i++) {
-      pedido[i].quantidade=0;
+        pedido[i].quantidade = 0;
         xapi.command("UserInterface Extensions Widget SetValue", {
             WidgetId: pedidoZerar[i],
             value: '0'
@@ -142,6 +157,7 @@ function zerarVar(pedido) {
     }
     return pedido;
 }
+
 
 //chama a função principal
 Main();
